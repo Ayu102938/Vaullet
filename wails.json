@@ -1,0 +1,13 @@
+{
+  "name": "Vaullet",
+  "frontend:dir": "frontend",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:install": "npm install",
+  "frontend:dev:build": "npm run build",
+  "frontend:dev:serverUrl": "http://localhost:3000",
+  "wailsjsdir": "./frontend/wailsjs",
+  "author": {
+    "name": "Ayuki",
+    "email": "darixianga@gmail.com"
+  }
+}
