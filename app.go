@@ -63,7 +63,11 @@ func (a *App) beforeClose(ctx context.Context) (prevent bool) {
 
 // shutdown is called at application termination
 func (a *App) shutdown(ctx context.Context) {
-	a.ctx = ctx
+	if a.db != nil {
+		// データベースの接続を閉じる
+		a.db.Close()
+		fmt.Print("データベースを閉じました")
+	}
 }
 
 // Greet returns a greeting for the given name
