@@ -75,11 +75,11 @@ func (a *App) CreateTransaction(t Transaction) (int64, error) {
 	// 安全なSQL文の準備
 	query := `
 	INSERT INTO transactions (
-		id, product, applicant_name, date, purpose, explanation, price, expenditure, category, status, rejected_reason, receipt, is_advance_application
+		product, applicant_name, date, purpose, explanation, price, expenditure, category, status, rejected_reason, receipt, is_advance_application
 	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	// SQL文を実行し、？の部分に構造体のデータを当てはめる
-	result, err := a.db.Exec(query, t.Id, t.Product, t.ApplicantName, t.Date, t.Purpose, t.Explanation, t.Price, t.Expenditure, t.Category, t.Status, t.RejectedReason, t.Receipt, t.IsAdvanceApplication)
+	result, err := a.db.Exec(query, t.Product, t.ApplicantName, t.Date, t.Purpose, t.Explanation, t.Price, t.Expenditure, t.Category, t.Status, t.RejectedReason, t.Receipt, t.IsAdvanceApplication)
 
 	// エラー情報をフロントエンドに返す
 	if err != nil {
