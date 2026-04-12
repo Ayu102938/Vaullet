@@ -22,18 +22,6 @@ func (a *App) startup(ctx context.Context) {
 	// Perform your setup here
 	a.ctx = ctx
 	a.db = InitDB() //dbを初期化して、結果をAppのa.dbに保存する
-
-	// ---READ TEST CODE---
-	transactions, err := a.GetTransactions()
-	if err != nil {
-		fmt.Println("テスト失敗:", err)
-	} else {
-		fmt.Println("テスト成功, %d件のデータが見つかりました\n", len(transactions))
-		if len(transactions) > 0 {
-			fmt.Printf("最新のデータ: %v\n", transactions[0])
-		}
-	}
-	// ---READ TEST CODE---
 }
 
 // domReady is called after front-end resources have been loaded
