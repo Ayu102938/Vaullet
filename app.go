@@ -23,30 +23,17 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.db = InitDB() //dbを初期化して、結果をAppのa.dbに保存する
 
-	//下からテスト用
-	dummyData := Transaction{
-		Id:                   1,
-		Product:              "テスト商品",
-		ApplicantName:        "テスト太郎",
-		Date:                 "2024-01-01",
-		Purpose:              "テスト用途",
-		Explanation:          "テスト備考",
-		Price:                2500,
-		Expenditure:          "テスト支出元",
-		Category:             "テストカテゴリ",
-		Status:               "テストステータス",
-		RejectedReason:       "テスト拒否理由",
-		Receipt:              "テスト領収書",
-		IsAdvanceApplication: "テスト先払い申請",
-	}
-	//CreateTransaction関数を呼び出してみる
-	id, err := a.CreateTransaction(dummyData)
+	// ---READ TEST CODE---
+	transactions, err := a.GetTransactions()
 	if err != nil {
 		fmt.Println("テスト失敗:", err)
 	} else {
-		fmt.Println("テスト成功:", id)
+		fmt.Println("テスト成功, %d件のデータが見つかりました\n", len(transactions))
+		if len(transactions) > 0 {
+			fmt.Printf("最新のデータ: %v\n", transactions[0])
+		}
 	}
-	// ここまで
+	// ---READ TEST CODE---
 }
 
 // domReady is called after front-end resources have been loaded
@@ -89,4 +76,33 @@ func (a *App) CreateTransaction(t Transaction) (int64, error) {
 	//成功したら新しく作られたデータのIDを返す
 	id, err := result.LastInsertId()
 	return id, err
+}
+
+func (a *App) GetTransactions() ([]Transaction, error) {
+	//データの取得
+	query := `
+	SELECT id, product, applicant_name, date, purpose, explanation, price, expenditure, category, status, rejected_reason, receipt, is_advance_application
+	FROM transactions
+	ORDER BY id DESC
+	`
+	rows, err := a.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// データを格納するためのリストを作成
+	var transactions []Transaction
+	for rows.Next() {
+		var t Transaction
+		err := rows.Scan(
+			&t.Id, &t.Product, &t.ApplicantName, &t.Date, &t.Purpose, &t.Explanation, &t.Price, &t.Expenditure, &t.Category, &t.Status, &t.RejectedReason, &t.Receipt, &t.IsAdvanceApplication,
+		)
+		if err != nil {
+			return nil, err
+		}
+		// データをリストに追加
+		transactions = append(transactions, t)
+	}
+	return transactions, nil
 }
