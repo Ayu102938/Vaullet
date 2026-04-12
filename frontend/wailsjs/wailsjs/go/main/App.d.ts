@@ -3,3 +3,5 @@
 import {main} from '../models';
 
 export function CreateTransaction(arg1:main.Transaction):Promise<number>;
+
+export function GetTransactions():Promise<Array<main.Transaction>>;

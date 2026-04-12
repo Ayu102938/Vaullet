@@ -5,3 +5,7 @@
 export function CreateTransaction(arg1) {
   return window['go']['main']['App']['CreateTransaction'](arg1);
 }
+
+export function GetTransactions() {
+  return window['go']['main']['App']['GetTransactions']();
+}
