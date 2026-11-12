@@ -1,3 +1,7 @@
 build/bin
 node_modules
 frontend/dist
+frontend/out
+
+# ローカルのSQLiteデータベース（InitDB が自動生成する）
+vaullet.db
