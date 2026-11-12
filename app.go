@@ -45,33 +45,34 @@ func (a *App) shutdown(ctx context.Context) {
 	}
 }
 
-// Greet returns a greeting for the given name
-func (a *App) CreateTransaction(t Transaction) (int64, error) {
+// AddEntry は家計簿の記録を1件追加し、作成されたIDを返します。
+func (a *App) AddEntry(e Entry) (int64, error) {
 	// 安全なSQL文の準備
 	query := `
-	INSERT INTO transactions (
-		product, applicant_name, date, purpose, explanation, price, expenditure, category, status, rejected_reason, receipt, is_advance_application
-	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO entries (
+		kind, category, subcategory, title, memo, amount, account, date, receipt_path
+	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	// SQL文を実行し、？の部分に構造体のデータを当てはめる
-	result, err := a.db.Exec(query, t.Product, t.ApplicantName, t.Date, t.Purpose, t.Explanation, t.Price, t.Expenditure, t.Category, t.Status, t.RejectedReason, t.Receipt, t.IsAdvanceApplication)
+	result, err := a.db.Exec(query, e.Kind, e.Category, e.Subcategory, e.Title, e.Memo, e.Amount, e.Account, e.Date, e.ReceiptPath)
 
 	// エラー情報をフロントエンドに返す
 	if err != nil {
 		return 0, err
 	}
 
-	//成功したら新しく作られたデータのIDを返す
+	// 成功したら新しく作られたデータのIDを返す
 	id, err := result.LastInsertId()
 	return id, err
 }
 
-func (a *App) GetTransactions() ([]Transaction, error) {
-	//データの取得
+// GetEntries は家計簿の記録を日付の新しい順に取得します。
+func (a *App) GetEntries() ([]Entry, error) {
+	// データの取得
 	query := `
-	SELECT id, product, applicant_name, date, purpose, explanation, price, expenditure, category, status, rejected_reason, receipt, is_advance_application
-	FROM transactions
-	ORDER BY id DESC
+	SELECT id, kind, category, subcategory, title, memo, amount, account, date, receipt_path, created_at, updated_at
+	FROM entries
+	ORDER BY date DESC, id DESC
 	`
 	rows, err := a.db.Query(query)
 	if err != nil {
@@ -80,17 +81,22 @@ func (a *App) GetTransactions() ([]Transaction, error) {
 	defer rows.Close()
 
 	// データを格納するためのリストを作成
-	var transactions []Transaction
+	var entries []Entry
 	for rows.Next() {
-		var t Transaction
+		var e Entry
+		// subcategory / memo / receipt_path は NULL になりうるため sql.NullString で受け取る
+		var subcategory, memo, receiptPath sql.NullString
 		err := rows.Scan(
-			&t.Id, &t.Product, &t.ApplicantName, &t.Date, &t.Purpose, &t.Explanation, &t.Price, &t.Expenditure, &t.Category, &t.Status, &t.RejectedReason, &t.Receipt, &t.IsAdvanceApplication,
+			&e.Id, &e.Kind, &e.Category, &subcategory, &e.Title, &memo, &e.Amount, &e.Account, &e.Date, &receiptPath, &e.CreatedAt, &e.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
+		e.Subcategory = subcategory.String
+		e.Memo = memo.String
+		e.ReceiptPath = receiptPath.String
 		// データをリストに追加
-		transactions = append(transactions, t)
+		entries = append(entries, e)
 	}
-	return transactions, nil
+	return entries, nil
 }

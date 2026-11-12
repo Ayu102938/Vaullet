@@ -1,3 +1,10 @@
 build/bin
 node_modules
 frontend/dist
+frontend/out
+
+# ローカルのSQLiteデータベース（InitDB が自動生成する）
+vaullet.db
+
+# エージェント向け指示ファイル（ローカルのみで管理）
+AGENTS.md
